@@ -1,0 +1,18 @@
+# Changes here will be overwritten by Copier
+# Do not modify this file directly
+# To update the project using the original template, run make copier-update
+_src_path: /Users/francesmoore/src/github.com/ONSDigital/ons-python-template
+code_owner: '@dissemination-data-dissemination'
+default_branch: main
+dependabot_open_pull_requests_limit: 10
+enable_dependabot_version_updates: true
+is_flask_project: false
+module_name: dis_python_logger
+package_manager: poetry
+project_type: general
+repo_settings: recommended
+repository_description: A logging library to be used for python projects in Dissemination
+repository_name: dis-python-logger
+repository_owner: ONSdigital
+repository_visibility: public
+set_up_git_repo: true
