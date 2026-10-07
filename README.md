@@ -79,6 +79,14 @@ Ensure you have the following installed:
    make run
    ```
 
+### Install from Git in another service
+
+Replace `<release-tag>` with a tag from the [dis-python-logger releases](https://github.com/ONSdigital/dis-python-logger/releases) page.
+
+```bash
+pip install "git+https://github.com/ONSdigital/dis-python-logger.git@<release-tag>"
+```
+
 ## Development
 
 Get started with development by running the following commands.
