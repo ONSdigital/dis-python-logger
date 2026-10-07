@@ -77,7 +77,7 @@ class DisLogger:
                 trace_id="trace-id",
                 namespace=self.namespace,
                 event="HTTP request completed",
-                severity=2,
+                severity=3,
                 http=http,
             )
             self.logger.info(**event_data.asdict())
