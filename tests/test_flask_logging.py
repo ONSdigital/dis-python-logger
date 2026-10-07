@@ -7,6 +7,7 @@ from dis_python_logger.context import get_context_fields
 
 STATUS_CODE_OK = 200
 
+
 def test_init_flask_logging_logs_request_and_clears_context():
     app = Flask("test")
     logger = Mock()
@@ -46,5 +47,3 @@ def test_init_flask_logging_logs_request_and_clears_context():
     assert http["scheme"] == "https"
     assert http["port"] == "8443"
     assert http["query"] == "limit=10"
-
-

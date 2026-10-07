@@ -6,6 +6,7 @@ WARNING_SEVERITY = 2
 data = {"something": 3}
 exp = Exception("Sorry, no numbers below zero")
 
+
 def test_severity_rating() -> None:
     logger = Mock()
     dis_logger = DisLogger("test", logger)
@@ -18,11 +19,13 @@ def test_severity_rating() -> None:
     severity = dis_logger.level_to_severity(21)
     assert severity == WARNING_SEVERITY
 
+
 def test_get_error_and_data_dicts() -> None:
     logger = Mock()
     dis_logger = DisLogger("test", logger)
     get_error = dis_logger.get_error_and_data_dicts(exp, {})
     assert get_error[0].message == "Sorry, no numbers below zero"
+
 
 def test_create_error_dict_after_exception_handler() -> None:
     try:
@@ -36,6 +39,7 @@ def test_create_error_dict_after_exception_handler() -> None:
     assert result.data is not None
     assert any("ValueError: bad input" in line for line in result.data)
 
+
 def test_debug_logging() -> None:
     logger = Mock()
     dis_logger = DisLogger("test", logger)
@@ -48,6 +52,7 @@ def test_debug_logging() -> None:
         raw="debug details",
         data=data,
     )
+
 
 def test_error_logging() -> None:
     logger = Mock()
@@ -63,4 +68,3 @@ def test_error_logging() -> None:
         errors=expected_error,
         data=data,
     )
-
