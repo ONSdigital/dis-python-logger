@@ -25,7 +25,7 @@ def test_init_flask_logging_logs_request_and_clears_context():
 
     assert response.status_code == STATUS_CODE_OK
     assert context_seen_in_route["method"] == "GET"
-    assert context_seen_in_route["path"] == "/datasets"
+    assert context_seen_in_route["path"] == "/someurl"
 
     logger.log.assert_called_once()
     assert logger.log.call_args.kwargs["event"] == "HTTP request received"
@@ -34,7 +34,7 @@ def test_init_flask_logging_logs_request_and_clears_context():
     completed_event = logger.info.call_args.kwargs
     assert completed_event["event"] == "HTTP request completed"
     assert completed_event["http"]["status_code"] == STATUS_CODE_OK
-    assert completed_event["http"]["path"] == "/datasets"
+    assert completed_event["http"]["path"] == "/someurl"
 
     assert get_context_fields() == {}
 
