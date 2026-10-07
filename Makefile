@@ -60,4 +60,4 @@ megalint:  ## Run the mega-linter. Use LINTER=NAME to run only one.
 		-v /var/run/docker.sock:/var/run/docker.sock:rw \
 		-v $(shell pwd):/tmp/lint:rw \
 		$(if $(LINTER),-e ENABLE_LINTERS=$(LINTER),) \
-		ghcr.io/oxsecurity/megalinter:v9
+		ghcr.io/oxsecurity/megalinter:v10

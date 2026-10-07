@@ -81,7 +81,8 @@ Ensure you have the following installed:
 
 ### Install from Git in another service
 
-Replace `<release-tag>` with a tag from the [dis-python-logger releases](https://github.com/ONSdigital/dis-python-logger/releases) page.
+Replace `<release-tag>` with a tag from the
+[dis-python-logger releases](https://github.com/ONSdigital/dis-python-logger/releases) page.
 
 ```bash
 pip install "git+https://github.com/ONSdigital/dis-python-logger.git@<release-tag>"
