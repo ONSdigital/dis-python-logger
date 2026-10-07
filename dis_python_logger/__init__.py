@@ -1,9 +1,7 @@
 import logging
-import sys
 import time
 import traceback
-import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import cast
 from urllib.parse import urlsplit
 
@@ -13,16 +11,6 @@ from flask import Flask, Response, g, request
 from dis_python_logger.event import HTTP, Auth, Error, EventData
 
 from .context import pop_context, push_context
-
-DEFAULT_REQUEST_ID_HEADER = "X-Request-ID"
-
-SEVERITY_MAP = {
-    "critical": 2,
-    "error": 3,
-    "warning": 4,
-    "info": 6,
-    "debug": 7,
-}
 
 
 def setup_logging(namespace: str) -> structlog.BoundLogger:
@@ -50,10 +38,7 @@ class DisLogger:
     def init_flask_logging(self: DisLogger, app: Flask, app_name: str) -> Flask:
         @app.before_request
         def _start_request_logging() -> None:
-            request_id = request.headers.get(DEFAULT_REQUEST_ID_HEADER) or str(uuid.uuid4())
-            g.request_id = request_id
             g._log_context_token = push_context(
-                request_id=request_id,
                 method=request.method,
                 path=request.path,
                 remote_addr=request.remote_addr,
@@ -73,31 +58,29 @@ class DisLogger:
                 duration_ms = round((time.time() - start_time) * 1000, 2)
 
             port = urlsplit(f"//{request.host}").port
-            scheme = urlsplit(f"//{request.host}").scheme
-            auth_info = Auth(identity="fran", identity_type="human")
+            auth_info = Auth(identity="some-service", identity_type="service")
             http = HTTP(
                 duration=duration_ms,
                 host=request.host,
                 method=request.method,
                 path=request.path,
                 port=str(port),
-                scheme=scheme,
+                scheme=request.scheme,
+                query=request.query_string.decode("utf-8"),
                 started_at=start_date,
                 ended_at=datetime.now(),
-                query=str(request.query_string),
                 response_content_length=response.content_length,
                 status_code=response.status_code,
             )
             event_data = EventData(
                 auth=auth_info,
-                trace_id="hello",
+                trace_id="trace-id",
                 namespace=self.namespace,
                 event="HTTP request completed",
                 severity=2,
                 http=http,
             )
             self.logger.info(**event_data.asdict())
-            response.headers[DEFAULT_REQUEST_ID_HEADER] = getattr(g, "request_id", "")
             return response
 
         @app.teardown_request
@@ -109,11 +92,6 @@ class DisLogger:
                 pop_context(token)
 
         return app
-
-    def add_created_at(self: DisLogger, event_dict: dict) -> dict:
-        now = datetime.now(UTC)
-        event_dict["created_at"] = now.strftime("%Y-%m-%dT%H:%M:%S.%f") + "0Z"
-        return event_dict
 
     def level_to_severity(self, level: int) -> int:
         """Helper to convert logging level to severity.
@@ -169,14 +147,13 @@ class DisLogger:
 
         https://github.com/ONSdigital/dp-standards/blob/main/LOGGING_STANDARDS.md#error-event-data
         """
-        tb = traceback.extract_tb(error.__traceback__)
-
-        if not tb:
+        if error.__traceback__ is None:
             return Error(message=str(error))
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        formatted_traceback = traceback.format_exception(exc_type, exc_value, exc_traceback)
 
-        return Error(data=formatted_traceback, message=str(error))
+        return Error(
+            data=traceback.format_exception(error),
+            message=str(error),
+        )
 
     def debug(
         self,

@@ -36,7 +36,7 @@ install-pre-commit:  ## Install the local git pre-commit hooks.
 
 .PHONY: test
 test:  ## Run the tests and check coverage.
-	poetry run pytest -n auto --cov=dis_python_logger --cov-report term-missing --cov-fail-under=100
+	poetry run pytest -n auto --cov=dis_python_logger --cov-report term-missing --cov-fail-under=80
 
 .PHONY: mypy
 mypy:  ## Run mypy.

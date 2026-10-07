@@ -6,8 +6,6 @@ without having to pass `extra=...` on every single logging call.
 """
 
 import contextvars
-from collections.abc import Iterator
-from contextlib import contextmanager
 
 _context_fields: contextvars.ContextVar[dict | None] = contextvars.ContextVar("log_context_fields", default=None)
 
@@ -16,32 +14,6 @@ def get_context_fields() -> dict:
     """Return a copy of the fields currently bound to this context."""
     fields = _context_fields.get()
     return dict(fields) if fields is not None else {}
-
-
-@contextmanager
-def log_context(**fields: object) -> Iterator[None]:
-    """Temporarily attach fields to every log record emitted within this
-    block (including from nested function calls / awaited coroutines).
-
-        with log_context(request_id="abc-123", user_id=42):
-            logger.info("handling request")   # includes request_id & user_id
-        logger.info("outside block")          # does not
-    """
-    current = get_context_fields()
-    token = _context_fields.set({**current, **fields})
-    try:
-        yield
-    finally:
-        _context_fields.reset(token)
-
-
-def bind_context(**fields: object) -> None:
-    """Attach fields to the current context indefinitely (until cleared
-    or the context ends). Prefer `log_context` where possible since it
-    cleans up after itself automatically.
-    """
-    current = get_context_fields()
-    _context_fields.set({**current, **fields})
 
 
 def clear_context() -> None:
