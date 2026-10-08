@@ -88,6 +88,24 @@ Replace `<release-tag>` with a tag from the
 pip install "git+https://github.com/ONSdigital/dis-python-logger.git@<release-tag>"
 ```
 
+### Quick Start
+
+Create an instance of DisLogger in the application
+
+```bash
+from dis_python_logger import DisLogger, setup_logging
+
+app_logging = setup_logging(__name__)
+dis_logger = DisLogger(__name__, app_logging)
+```
+
+Where required, use the functions to log at the correct severity level e.g.
+
+```bash
+exp = Exception("Sorry, no numbers below zero")
+dis_logger.error("an error occurred", error=exp)
+```
+
 ## Development
 
 Get started with development by running the following commands.

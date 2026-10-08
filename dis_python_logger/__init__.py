@@ -35,7 +35,7 @@ class DisLogger:
         self.namespace = namespace
         self.logger = logger
 
-    def init_flask_logging(self: DisLogger, app: Flask, app_name: str) -> Flask:
+    def init_flask_logging(self: DisLogger, app: Flask) -> Flask:
         @app.before_request
         def _start_request_logging() -> None:
             g._log_context_token = push_context(

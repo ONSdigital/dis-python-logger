@@ -12,7 +12,7 @@ def test_init_flask_logging_logs_request_and_clears_context():
     app = Flask("test")
     logger = Mock()
     dis_logger = DisLogger("test", logger)
-    dis_logger.init_flask_logging(app, "test-app")
+    dis_logger.init_flask_logging(app)
 
     context_seen_in_route = {}
 
