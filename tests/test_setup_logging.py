@@ -28,5 +28,3 @@ def test_setup_logging_uses_created_at_timestamp_key() -> None:
     timestamper = processors[0]
     assert isinstance(timestamper, structlog.processors.TimeStamper)
     assert timestamper.key == "created_at"
-
-
