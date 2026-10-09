@@ -16,7 +16,7 @@ from .context import pop_context, push_context
 def setup_logging(namespace: str) -> structlog.BoundLogger:
     structlog.configure(
         processors=[
-            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.TimeStamper(fmt="iso", key="created_at"),
             structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.BoundLogger,
