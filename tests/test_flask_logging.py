@@ -35,6 +35,10 @@ def test_init_flask_logging_logs_request_and_clears_context():
     assert completed_event["event"] == "HTTP request completed"
     assert completed_event["http"]["status_code"] == STATUS_CODE_OK
     assert completed_event["http"]["path"] == "/someurl"
+    assert isinstance(completed_event["http"]["duration"], int)
+    assert completed_event["http"]["duration"] >= 0
+    assert completed_event["http"]["started_at"].endswith("Z")
+    assert completed_event["http"]["ended_at"].endswith("Z")
 
     assert get_context_fields() == {}
 

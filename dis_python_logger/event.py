@@ -1,5 +1,4 @@
 import dataclasses
-from datetime import datetime
 
 
 @dataclasses.dataclass
@@ -46,8 +45,8 @@ class StackTrace:
 
 @dataclasses.dataclass
 class HTTP:
-    duration: float
-    ended_at: datetime
+    duration: int
+    ended_at: str
     host: str
     method: str
     path: str
@@ -55,5 +54,5 @@ class HTTP:
     query: str
     response_content_length: int
     scheme: str
-    started_at: datetime
+    started_at: str
     status_code: int

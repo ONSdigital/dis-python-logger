@@ -1,7 +1,7 @@
 import logging
 import time
 import traceback
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import cast
 from urllib.parse import urlsplit
 
@@ -43,32 +43,32 @@ class DisLogger:
                 path=request.path,
                 remote_addr=request.remote_addr,
             )
-            g._request_start_date = datetime.now()
-            g._request_start_time = time.time()
+            g._request_start_date = datetime.now(UTC)
+            g._request_start_time = time.time_ns()
             self.info("HTTP request received")
 
         @app.after_request
         def _log_request_completed(response: Response) -> Response:
-            duration_ms = 0.0
+            duration_ns = 0
             start_date = getattr(g, "_request_start_date", None)
             if start_date is None:
-                start_date = datetime.now()
+                start_date = datetime.now(UTC)
             start_time = getattr(g, "_request_start_time", None)
-            if start_time is not None:
-                duration_ms = round((time.time() - start_time) * 1000, 2)
+            if isinstance(start_time, int):
+                duration_ns = time.time_ns() - start_time
 
             port = urlsplit(f"//{request.host}").port
             auth_info = Auth(identity="some-service", identity_type="service")
             http = HTTP(
-                duration=duration_ms,
+                duration=duration_ns,
                 host=request.host,
                 method=request.method,
                 path=request.path,
                 port=str(port),
                 scheme=request.scheme,
                 query=request.query_string.decode("utf-8"),
-                started_at=start_date,
-                ended_at=datetime.now(),
+                started_at=start_date.isoformat().replace("+00:00", "Z"),
+                ended_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 response_content_length=response.content_length,
                 status_code=response.status_code,
             )
