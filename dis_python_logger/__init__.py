@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 import structlog
 from flask import Flask, Response, g, request
 
-from dis_python_logger.event import HTTP, Auth, Error, EventData
+from dis_python_logger.event import Classification, HTTP, Auth, Error, EventData, IdentityType
 
 from .context import pop_context, push_context
 
@@ -58,7 +58,6 @@ class DisLogger:
                 duration_ns = time.time_ns() - start_time
 
             port = urlsplit(f"//{request.host}").port
-            auth_info = Auth(identity="some-service", identity_type="service")
             http = HTTP(
                 duration=duration_ns,
                 host=request.host,
@@ -73,7 +72,6 @@ class DisLogger:
                 status_code=response.status_code,
             )
             event_data = EventData(
-                auth=auth_info,
                 trace_id="trace-id",
                 namespace=self.namespace,
                 event="HTTP request completed",
@@ -111,6 +109,8 @@ class DisLogger:
         event: str,
         level: int,
         error: Exception | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
         data: dict | None = None,
         raw: str | None = None,
     ) -> None:
@@ -120,7 +120,14 @@ class DisLogger:
 
         level_int = self.level_to_severity(level)
         log_event = EventData(
-            event=event, namespace=self.namespace, severity=level_int, data=data_dict, errors=errors, raw=raw
+            event=event,
+            namespace=self.namespace,
+            severity=level_int,
+            classification=classification,
+            auth=auth,
+            data=data_dict,
+            errors=errors,
+            raw=raw
         )
         self.logger.log(**log_event.asdict())
 
@@ -160,6 +167,8 @@ class DisLogger:
         event: str,
         raw: str | None = None,
         data: dict | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
     ) -> None:
         """Log at the debug level.
 
@@ -167,28 +176,36 @@ class DisLogger:
         :param raw: Raw log data for a third party library.
         :param data: Additional context data such as arbitrary key-value pairs that may be of use in providing context.
         :param response: Optional HTTP response to include in the log.
+        :param classification: Optional classification tag for the log event.
+        :param auth: Optional authentication information for the log event.
         """
-        self._log(event, logging.DEBUG, raw=raw, data=data)
+        self._log(event, logging.DEBUG, raw=raw, data=data, classification=classification, auth=auth)
 
     def info(
         self,
         event: str,
         raw: str | None = None,
         data: dict | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
     ) -> None:
         """Log at the info level.
 
         :param event: The event description.
         :param raw: Raw log data for a third party library.
         :param data: Additional context data such as arbitrary key-value pairs that may be of use in providing context.
+        :param classification: Optional classification tag for the log event.
+        :param auth: Optional authentication information for the log event.
         """
-        self._log(event, logging.INFO, raw=raw, data=data)
+        self._log(event, logging.INFO, raw=raw, data=data, classification=classification, auth=auth)
 
     def warning(
         self,
         event: str,
         raw: str | None = None,
         data: dict | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
     ) -> None:
         """Log at the warning level.
 
@@ -196,8 +213,10 @@ class DisLogger:
         :param raw: Raw log data for a third party library.
         :param data: Additional context data such as arbitrary key-value pairs that may be of use in providing context.
         :param response: Optional HTTP response to include in the log.
+        :param classification: Optional classification tag for the log event.
+        :param auth: Optional authentication information for the log event.
         """
-        self._log(event, logging.WARNING, raw=raw, data=data)
+        self._log(event, logging.WARNING, raw=raw, data=data, classification=classification, auth=auth)
 
     def error(
         self,
@@ -205,6 +224,8 @@ class DisLogger:
         error: Exception,
         raw: str | None = None,
         data: dict | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
     ) -> None:
         """Log at the error level.
 
@@ -213,8 +234,10 @@ class DisLogger:
         :param raw: Raw log data for a third party library.
         :param data: Additional context data such as arbitrary key-value pairs that may be of use in providing context.
         :param response: Optional HTTP response to include in the log.
+        :param classification: Optional classification tag for the log event.
+        :param auth: Optional authentication information for the log event.
         """
-        self._log(event, logging.ERROR, error=error, raw=raw, data=data)
+        self._log(event, logging.ERROR, error=error, raw=raw, data=data, classification=classification, auth=auth)
 
     def critical(
         self,
@@ -222,6 +245,8 @@ class DisLogger:
         error: Exception,
         raw: str | None = None,
         data: dict | None = None,
+        classification: Classification | None = None,
+        auth: Auth | None = None,
     ) -> None:
         """IMPORTANT: You should only be logging at the critical level during
         application failure, i.e. if your app is in the process of failing
@@ -234,5 +259,7 @@ class DisLogger:
         :param raw: Raw log data for a third party library.
         :param data: Additional context data such as arbitrary key-value pairs that may be of use in providing context.
         :param response: Optional HTTP response to include in the log.
+        :param classification: Optional classification tag for the log event.
+        :param auth: Optional authentication information for the log event.
         """
-        self._log(event, logging.CRITICAL, error=error, raw=raw, data=data)
+        self._log(event, logging.CRITICAL, error=error, raw=raw, data=data, classification=classification, auth=auth)

@@ -1,10 +1,13 @@
 from unittest.mock import Mock
 
 from dis_python_logger import DisLogger
+from dis_python_logger.event import Auth, Classification, IdentityType
 
 WARNING_SEVERITY = 2
 data = {"something": 3}
 exp = Exception("Sorry, no numbers below zero")
+auth = Auth(identity="some-user", identity_type=IdentityType.USER)
+classification = Classification.PROTECTIVE_MONITORING
 
 
 def test_severity_rating() -> None:
@@ -43,12 +46,14 @@ def test_create_error_dict_after_exception_handler() -> None:
 def test_debug_logging() -> None:
     logger = Mock()
     dis_logger = DisLogger("test", logger)
-    dis_logger.debug("some debug thing", raw="debug details", data=data)
+    dis_logger.debug("some debug thing", raw="debug details", data=data, classification=classification, auth=auth)
 
     logger.log.assert_called_once_with(
         event="some debug thing",
         namespace="test",
         severity=3,
+        classification="PROTECTIVE_MONITORING",
+        auth={"identity": "some-user", "identity_type": "user"},
         raw="debug details",
         data=data,
     )
@@ -58,12 +63,14 @@ def test_error_logging() -> None:
     logger = Mock()
     dis_logger = DisLogger("test", logger)
     expected_error = {"message": "Sorry, no numbers below zero", "data": None, "stack_trace": None}
-    dis_logger.error("error thing", error=exp, raw="error details", data=data)
+    dis_logger.error("error thing", error=exp, raw="error details", data=data, classification=classification, auth=auth)
 
     logger.log.assert_called_once_with(
         event="error thing",
         namespace="test",
         severity=1,
+        classification="PROTECTIVE_MONITORING",
+        auth={"identity": "some-user", "identity_type": "user"},
         raw="error details",
         errors=expected_error,
         data=data,

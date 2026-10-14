@@ -1,4 +1,5 @@
 import dataclasses
+from enum import Enum
 
 
 @dataclasses.dataclass
@@ -23,10 +24,19 @@ class EventData:
         return {key: value for key, value in dataclasses.asdict(self).items() if value is not None}
 
 
+class Classification(str, Enum):
+    PROTECTIVE_MONITORING = "PROTECTIVE_MONITORING"
+
+
+class IdentityType(str, Enum):
+    USER = "user"
+    SERVICE = "service"
+
+
 @dataclasses.dataclass
 class Auth:
     identity: str
-    identity_type: str
+    identity_type: IdentityType
 
 
 @dataclasses.dataclass
