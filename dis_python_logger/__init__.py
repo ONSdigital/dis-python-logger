@@ -8,7 +8,7 @@ from urllib.parse import urlsplit
 import structlog
 from flask import Flask, Response, g, request
 
-from dis_python_logger.event import Classification, HTTP, Auth, Error, EventData, IdentityType
+from dis_python_logger.event import HTTP, Auth, Classification, Error, EventData
 
 from .context import pop_context, push_context
 
@@ -104,7 +104,7 @@ class DisLogger:
         else:
             return 3
 
-    def _log(
+    def _log(  # noqa: PLR0913
         self: DisLogger,
         event: str,
         level: int,
@@ -127,7 +127,7 @@ class DisLogger:
             auth=auth,
             data=data_dict,
             errors=errors,
-            raw=raw
+            raw=raw,
         )
         self.logger.log(**log_event.asdict())
 
@@ -218,7 +218,7 @@ class DisLogger:
         """
         self._log(event, logging.WARNING, raw=raw, data=data, classification=classification, auth=auth)
 
-    def error(
+    def error(  # noqa: PLR0913
         self,
         event: str,
         error: Exception,
@@ -239,7 +239,7 @@ class DisLogger:
         """
         self._log(event, logging.ERROR, error=error, raw=raw, data=data, classification=classification, auth=auth)
 
-    def critical(
+    def critical(  # noqa: PLR0913
         self,
         event: str,
         error: Exception,
