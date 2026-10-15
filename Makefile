@@ -42,10 +42,6 @@ test:  ## Run the tests and check coverage.
 mypy:  ## Run mypy.
 	poetry run mypy dis_python_logger
 
-.PHONY: run
-run:  ## Run the python script
-	poetry run python -m dis_python_logger
-
 .PHONY: install
 install:  ## Install the dependencies excluding dev.
 	poetry install --only main

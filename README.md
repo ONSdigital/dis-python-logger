@@ -73,12 +73,6 @@ Ensure you have the following installed:
    make install
    ```
 
-3. Run the application
-
-   ```bash
-   make run
-   ```
-
 ### Install from Git in another service
 
 Replace `<release-tag>` with a tag from the

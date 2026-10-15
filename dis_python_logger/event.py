@@ -12,7 +12,7 @@ class EventData:
     # Optional fields
     trace_id: str | None = None
     span_id: str | None = None
-    classification: str | None = None
+    classification: Classification | None = None
     raw: str | None = None
     spec_version: str | None = None
     auth: Auth | None = None
