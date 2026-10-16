@@ -7,10 +7,19 @@ from urllib.parse import urlsplit
 
 import structlog
 from flask import Flask, Response, g, request
+from opentelemetry import propagate, trace
+from opentelemetry.context import Context
 
 from dis_python_logger.event import HTTP, Auth, Classification, Error, EventData
 
 from .context import pop_context, push_context
+
+
+def _get_trace_id_from_context(context: Context | None = None) -> str | None:
+    span_context = trace.get_current_span(context).get_span_context()
+    if span_context.is_valid:
+        return f"{span_context.trace_id:032x}"
+    return None
 
 
 def setup_logging(namespace: str) -> structlog.BoundLogger:
@@ -43,6 +52,8 @@ class DisLogger:
                 path=request.path,
                 remote_addr=request.remote_addr,
             )
+            g._otel_context = propagate.extract(request.headers)
+            g._trace_id = _get_trace_id_from_context() or _get_trace_id_from_context(g._otel_context)
             g._request_start_date = datetime.now(UTC)
             g._request_start_time = time.time_ns()
             self.info("HTTP request received")
@@ -72,7 +83,7 @@ class DisLogger:
                 status_code=response.status_code,
             )
             event_data = EventData(
-                trace_id="trace-id",
+                trace_id=getattr(g, "_trace_id", None),
                 namespace=self.namespace,
                 event="HTTP request completed",
                 severity=3,
@@ -123,6 +134,7 @@ class DisLogger:
             event=event,
             namespace=self.namespace,
             severity=level_int,
+            trace_id=_get_trace_id_from_context(),
             classification=classification,
             auth=auth,
             data=data_dict,
