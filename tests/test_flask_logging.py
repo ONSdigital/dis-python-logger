@@ -21,7 +21,10 @@ def test_init_flask_logging_logs_request_and_clears_context():
         context_seen_in_route.update(get_context_fields())
         return "ok", STATUS_CODE_OK
 
-    response = app.test_client().get("/someurl")
+    response = app.test_client().get(
+        "/someurl",
+        headers={"traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"},
+    )
 
     assert response.status_code == STATUS_CODE_OK
     assert context_seen_in_route["method"] == "GET"
@@ -39,6 +42,7 @@ def test_init_flask_logging_logs_request_and_clears_context():
     assert completed_event["http"]["duration"] >= 0
     assert completed_event["http"]["started_at"].endswith("Z")
     assert completed_event["http"]["ended_at"].endswith("Z")
+    assert completed_event["trace_id"] == "4bf92f3577b34da6a3ce929d0e0e4736"
 
     assert get_context_fields() == {}
 
